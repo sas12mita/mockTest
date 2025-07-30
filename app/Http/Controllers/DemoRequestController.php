@@ -142,10 +142,20 @@ class DemoRequestController extends Controller
     }
     public function destroy(Request $request, $id)
     {
-        $demo = Tenant::findOrFail($id);
-        $demo->delete();
+        // Find the tenant
+        $tenant = Tenant::findOrFail($id);
 
-        return redirect()->back()->with('success', 'Tenant deleted successfully');
+
+        $databaseName = $tenant->database;
+
+        if (DB::statement("DROP DATABASE IF EXISTS `$databaseName`")) {
+
+            $tenant->delete();
+
+            return redirect()->back()->with('success', 'Tenant and associated database deleted successfully.');
+        }
+
+        return redirect()->back()->with('error', 'Failed to delete the tenant database.');
     }
 
 
@@ -205,6 +215,16 @@ class DemoRequestController extends Controller
 
         //Check if target database exists
         if (DB::select("SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = ?", [$newDb])) {
+            $tenant->update([
+                'days' => $days,
+                'status' => 'approved'
+            ]);
+            DB::statement("TRUNCATE TABLE `$newDb`.`subscription`");
+            DB::statement("
+                    INSERT INTO `$newDb`.`subscription` 
+                    (`total_days_granted`, `created_at`, `updated_at`) 
+                    VALUES ('$days', '" . now() . "', '" . now() . "')
+                ");
             return redirect()->back()->with('error', 'Database already exists!');
         }
 
@@ -277,5 +297,13 @@ class DemoRequestController extends Controller
             return redirect()->back()
                 ->with('error', 'Operation failed. Error logged.');
         }
+    }
+    public function decline($id)
+    {
+        $tenant = Tenant::findOrFail($id);
+        $tenant->status = "decline";
+        $tenant->days = 0;
+        $tenant->save();
+        return redirect()->back()->with('success', 'Tenant declined successfully.');
     }
 }

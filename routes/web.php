@@ -48,4 +48,6 @@ Route::middleware(['auth.admin'])->group(function () {
     Route::delete('/dashboard/demo-list/delete/{id}', [DemoRequestController::class, 'destroy'])->name('demorequest.destroy');
     Route::post('/dashboard/demo-list/updateday/{id}', [DemoRequestController::class, 'updateday'])->name('demorequest.updateday');
     Route::post('/dashboard/demo-list/update/{id}', [DemoRequestController::class, 'demoupdate'])->name('demorequest.update');
+    Route::post('/dashboard/demo-list/decline/{id}', [DemoRequestController::class, 'decline'])->name('tenants.decline');
+
 });

@@ -117,7 +117,7 @@
     <div class="container-fluid">
         <div class="row">
 
-           <div class="col-md-3 col-lg-2 sidebar d-flex flex-column p-0">
+            <div class="col-md-3 col-lg-2 sidebar d-flex flex-column p-0">
                 <div class="text-center border-bottom py-3">
                     <img src="{{ asset('assets/images/logo.png') }}" alt="Logo" class="logo img-fluid">
                 </div>
@@ -217,7 +217,7 @@
                                                         </a>
                                                     </li>
                                                     @endif
-                                                    @if($tenant->status !== 'approved')
+
                                                     <li>
                                                         <a class="dropdown-item text-danger" href="#"
                                                             data-bs-toggle="modal"
@@ -227,7 +227,19 @@
                                                             <i class="bi bi-trash-fill text-danger me-2"></i>Delete
                                                         </a>
                                                     </li>
+
+                                                    @if($tenant->status == 'approved')
+                                                    <li>
+                                                        <a class="dropdown-item text-danger" href="#"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#declineModal"
+                                                            data-tenant-id="{{ $tenant->id }}"
+                                                            data-tenant-name="{{ $tenant->full_name }}">
+                                                            <i class="bi bi-x-circle-fill text-danger me-2"></i>Decline
+                                                        </a>
+                                                    </li>
                                                     @endif
+
                                                     <li>
                                                         <a class="dropdown-item" href="#"
                                                             data-bs-toggle="modal"
@@ -355,8 +367,32 @@
             </div>
         </div>
     </div>
+
+    <!-- Decline Modal -->
+    <div class="modal fade" id="declineModal" tabindex="-1" aria-labelledby="declineModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="declineModalLabel">Decline Tenant</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="declineForm" method="POST">
+                    @csrf
+                    @method('POST')
+                    <div class="modal-body">
+                        <p>Are you sure you want to decline <strong><span id="tenantNameToDecline"></span></strong>?</p>
+                        <p class="text-danger">This will mark the tenant as declined.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-danger">Decline</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <!-- Edit Modal -->
-    <!-- Full Edit Tenant Modal -->
     <div class="modal fade" id="editmodel" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <form method="POST" action="" id="editTenantForm">
@@ -404,11 +440,6 @@
                             <label for="editDatabase" class="form-label">Database</label>
                             <input type="text" class="form-control" id="editDatabase" name="database" required>
                         </div>
-
-                        <div class="col-md-3">
-                            <label for="editDays" class="form-label">Days</label>
-                            <input type="number" class="form-control" id="editDays" name="days" min="0">
-                        </div>
                     </div>
 
                     <div class="modal-footer">
@@ -439,7 +470,7 @@
                 var button = $(event.relatedTarget); // Button that triggered the modal
                 var tenantId = button.data('tenant-id'); // Extract info from data-* attributes
                 var form = $(this).find('form');
-                form.attr('action', '/dashboard/demo-list/statusupdate/' + tenantId);
+                form.attr('action', '/dashboard/demo-list/decline/' + tenantId);
             });
             // Handle delete button click
             $('#deleteModal').on('show.bs.modal', function(event) {
