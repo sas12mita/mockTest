@@ -1,6 +1,6 @@
 <p>Hello {{ $name }},</p>
 
-<p>Your account for Project Sayogi has been created. Here are your login details:</p>
+<p>Your account for Mock Test has been created. Here are your login details:</p>
 
 <ul>
     <li><strong>Username:</strong> {{ $username }}</li>
